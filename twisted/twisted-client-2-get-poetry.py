@@ -2,14 +2,15 @@
 #-*- coding=utf-8 -*-
 
 import datetime
-from twisted.internet.protocol import Protocol, ClientFactory
+from twisted.internet.protocol import Protocol
+from twisted.internet.protocol import ClientFactory
 
 class PoetryProtocol(Protocol):
     poem = ''
     task_num = 0
     def dataReceived(self, data):
         self.poem += data
-        msg = '任务 %d: 接受 %d bytes 大小的诗歌 从 %s'
+        msg = 'Task %d: got %d bytes of poetry from %s'
         print  msg % (self.task_num, len(data), self.transport.getPeer())
     def connectionLost(self, reason): #下载诗歌完成后，是安全关闭，还是意外关闭
         self.poemReceived(self.poem)
@@ -37,9 +38,9 @@ class PoetryClientFactory(ClientFactory):
             reactor.stop()
     def report(self):
         for i in self.poems:
-            print '任务 %d: %d bytes接受诗歌' % (i, len(self.poems[i]))
+            print 'Task %d: %d bytes of poetry' % (i, len(self.poems[i]))
     def clientConnectionFailed(self, connector, reason):
-        print '连接失败:', connector.getDestination()
+        print 'Failed to connect to:', connector.getDestination()
         self.poem_finished()
 
 if __name__ == '__main__':
