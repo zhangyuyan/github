@@ -1,0 +1,7 @@
+sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+sock.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
+sock.bind(('localhost', 10004))
+sock.listen(0)
+sock, addr = sock.accept()
+bytes = open('poetry/science.txt').read()
+sock.sendall(bytes) 
