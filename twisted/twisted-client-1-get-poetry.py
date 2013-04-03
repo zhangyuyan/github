@@ -48,7 +48,7 @@ class PoetrySocket(object):
             return main.CONNECTION_DONE
         else:
             msg = 'Task %d: got %d bytes of poetry from %s'
-            # print  msg % (self.task_num, len(bytes), self.format_addr())
+            print  msg % (self.task_num, len(bytes), self.format_addr())
         self.poem += bytes
     def logPrefix(self):
         return 'poetry'
@@ -68,3 +68,4 @@ if __name__ == '__main__':
 
     for i, sock in enumerate(sockets):
         print 'Task %d: %d bytes of poetry' % (i + 1, len(sock.poem))
+        print sock.poem

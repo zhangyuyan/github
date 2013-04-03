@@ -11,7 +11,7 @@ class PoetryProtocol(Protocol):
     def dataReceived(self, data):
         self.poem += data
         msg = 'Task %d: got %d bytes of poetry from %s'
-        print  msg % (self.task_num, len(data), self.transport.getPeer())
+        # print  msg % (self.task_num, len(data), self.transport.getPeer())
     def connectionLost(self, reason): #下载诗歌完成后，是安全关闭，还是意外关闭
         self.poemReceived(self.poem)
     def poemReceived(self, poem):   #下载诗歌完成后
