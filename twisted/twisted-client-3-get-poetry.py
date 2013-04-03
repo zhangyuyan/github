@@ -2,6 +2,7 @@
 #-*- coding=utf-8 -*-
 
 from twisted.internet.protocol import Protocol, ClientFactory
+import traceback
 
 class PoetryProtocol(Protocol):
     poem = ''
@@ -29,7 +30,7 @@ def get_poetry(host, port, callback):
     reactor.connectTCP(host, port, factory)
 
 if __name__ == '__main__':
-    addresses = [('127.0.0.1', 10000), ('127.0.0.1', 10001), ('127.0.0.1', 10002)]
+    addresses = [('127.0.0.1', 10000)]#, ('127.0.0.1', 10001), ('127.0.0.1', 10002)]
     from twisted.internet import reactor
     poems = []
     def got_poem(poem):
@@ -39,6 +40,8 @@ if __name__ == '__main__':
     for address in addresses:
         host, port = address
         get_poetry(host, port, got_poem)
+
     reactor.run()
+
     for poem in poems:
         print poem

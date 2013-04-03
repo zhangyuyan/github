@@ -50,7 +50,7 @@ def cummingsify(poem):
     return random.choice([success, gibberish, bug])()
 
 if __name__ == '__main__':
-    addresses = [('127.0.0.1', 10009), ('127.0.0.1', 10001), ('127.0.0.1', 10002)]
+    addresses = [('127.0.0.1', 10000)]#, ('127.0.0.1', 10001), ('127.0.0.1', 10002)]
     from twisted.internet import reactor
     poems = []
     errors = []
