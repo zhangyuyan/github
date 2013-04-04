@@ -78,6 +78,3 @@ if __name__ == '__main__':
         d.addCallbacks(got_poem, poem_failed)
         d.addBoth(poem_done)
     reactor.run()
-    print '***************************************'
-    for poem in poems:
-        print poem
