@@ -14,7 +14,8 @@ reactor.suggestThreadPoolSize(50000)
 #############################################
 class SMTPClient(LineReceiver):
     def lineReceived(self, line):
-        ip =  self.transport.getPeer().host,
+        # ip =  self.transport.getPeer().host,
+        ip =  self.transport.getPeer().host
         self.transport.loseConnection()
         self.factory.scanFinished(ip[0] + " " + line+" Cyber")
 #############################################

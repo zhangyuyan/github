@@ -39,7 +39,7 @@ if __name__ == '__main__':
     def got_poem(poem):
         poems.append(poem)
     def poem_failed(err):
-        print >>sys.stderr, 'Poem failed:', err
+        print >>sys.stderr, 'Poem failed:YYY', err
         errors.append(err)
     def poem_done(_):
         if len(poems) + len(errors) == len(addresses):

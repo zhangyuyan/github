@@ -31,7 +31,6 @@ class DnsDatagramProtocol(DNSDatagramProtocol):
         qd = [qd]
         self.query(('192.5.5.241',53),qd)      
 
-
     def datagramReceived(self, data, addr):
         print 'datagramReceived'
         print data
@@ -56,7 +55,10 @@ class DnsDatagramProtocol(DNSDatagramProtocol):
             if m.id not in self.resends:
                 self.controller.messageReceived(m, self, addr)
 
+def finish(igo):
+    reactor.callLater(5, reactor.stop)
 
 d = Deferred()
 reactor.listenUDP(0, DnsDatagramProtocol(d))
+d.addCallback(finish)
 reactor.run()
