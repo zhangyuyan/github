@@ -1,68 +1,77 @@
-#!/usr/bin/env python
+from twisted.names.client import AXFRController
+from twisted.names.dns import DNSDatagramProtocol
+from twisted.names.dns import  Query
+from twisted.names.dns import Name
+from twisted.names.dns import TXT
+from twisted.names.dns import CH
 
-# Copyright (c) Twisted Matrix Laboratories.
-# See LICENSE for details.
+from twisted.internet import defer
+from twisted.internet.defer import Deferred
+from twisted.internet import reactor
+from twisted.internet import task
+from twisted.internet import reactor
+reactor.suggestThreadPoolSize(50000)
 
-"""
-Prints the results of an Address record lookup, Mail-Exchanger record
-lookup, and Nameserver record lookup for the given hostname for a
-given hostname.
+def finish():
+    reactor.callLater(5, reactor.stop)
 
-To run this script:
-$ python testdns.py <hostname>
-e.g.:
-$ python testdns.py www.google.com
-"""
-import sys
+def getResult(result, ip):
+    fp = open('success','a')
+    contents = result.toStr()
+    print '****************',type(content)
+    content = contents.replace('\n','').replace('?','')
+    fp.write(ip+'\t'+content+'\n')
+    fp.close()
 
-from twisted.names import client
-from twisted.internet import defer, reactor
-from twisted.names import dns, error
+def getError(reason, ip):
+    fp = open('err','a')
+    fp.write(ip+'\t'+str(reason)+'\n')
+    fp.close()
 
+def nexted():
+    for i in range(152267):
+        yield i+1
+a = nexted()
 
-r = client.Resolver('/etc/resolv.conf')
+def doWork():
+    for ip in file("list12.txt"):
+        i = a.next()
+        ip = ip.strip()
+        d = Deferred()
+        name = Name('version.bind')
+        axf = AXFRController(name,d)
+        dns = DNSDatagramProtocol(axf)
+        query = Query()
+        query.name = Name('version.bind')
+        query.type = TXT
+        query.cls = CH
+        query = [query]
+        d1 = dns.query((ip,53), query)
+        d1.addCallback(getResult,ip)
+        d1.addErrback(getError,ip)
+        yield d1
 
+def finish(igo):
+    reactor.callLater(5, reactor.stop)
 
-def formatResult(a, heading):
-    answer, authority, additional = a
-    lines = ['# ' + heading]
-    for a in answer:
-        line = [
-            a.name,
-            dns.QUERY_CLASSES.get(a.cls, 'UNKNOWN (%d)' % (a.cls,)),
-            a.payload]
-        lines.append(' '.join(str(word) for word in line))
+#############################################
+def taskRun():
+    deferreds = []
+    coop = task.Cooperator()
+    work = doWork()
+    maxRun = 152264
+    for i in xrange(maxRun):
+        d = coop.coiterate(work)
+        deferreds.append(d)
+    dl = defer.DeferredList(deferreds, consumeErrors=True)
+    dl.addCallback(finish)
 
-    return '\n'.join(line for line in lines)
+#############################################
 
-
-def printError(f):
-    f.trap(defer.FirstError)
-    f = f.value.subFailure
-    f.trap(error.DomainError)
-    print f.value.__class__.__name__, f.value.message.queries
-
-
-def printResults(res):
-    for r in res:
-        print r
-        print
-
+def main():
+    taskRun()
+    reactor.run()
 
 if __name__ == '__main__':
-    domainname = sys.argv[1]
+    main()
 
-    d = defer.gatherResults([
-            r.lookupAddress(domainname).addCallback(
-                formatResult, 'Addresses'),
-            r.lookupMailExchange(domainname).addCallback(
-                formatResult, 'Mail Exchangers'),
-            r.lookupNameservers(domainname).addCallback(
-                formatResult, 'Nameservers'),
-            ], consumeErrors=True)
-
-    d.addCallbacks(printResults, printError)
-
-    d.addBoth(lambda ign: reactor.stop())
-
-    reactor.run()

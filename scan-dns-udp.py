@@ -13,6 +13,7 @@ from twisted.names.client import AXFRController
 from twisted.python import log
 import random
 from twisted.internet import defer
+from twisted.names.error import DNSQueryTimeoutError
 
 class DnsDatagramProtocol(DNSDatagramProtocol):
 
@@ -44,8 +45,11 @@ class DnsDatagramProtocol(DNSDatagramProtocol):
             self.resends[id] = 1
         def writeMessage(m):
             self.writeMessage(m, address)
-        print 'end query'
-        return self._query(queries, timeout, id, writeMessage)
+        try:
+            return self._query(queries, 3, id, writeMessage)
+        except DNSQueryTimeoutError:
+            self.controller.errback(DNSQueryTimeoutError)
+        # return self._query(queries, timeout, id, writeMessage)
 
     def startProtocol(self):
         print 'startProtocol'
